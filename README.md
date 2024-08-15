@@ -2,6 +2,7 @@
 Package name: `cv_expt`.
 
 ## Directory Structure
+```
 |── data
 │   └── # Directory for storing raw and processed datasets.
 ├── setup.py
@@ -56,7 +57,7 @@ Package name: `cv_expt`.
 │       │   └── best_model.pth
 │       │       # The best-performing model checkpoint from Experiment 1.
 
-
+```
 
 
 
