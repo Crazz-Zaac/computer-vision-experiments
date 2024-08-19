@@ -1,5 +1,12 @@
 # Computer Vision Expirements i.e. `cv_expt`
-This project is being done heavily based on ChatGPT and CoPilot.
+This project is being done with the help of ChatGPT and CoPilot.
+
+## Why are we doing it?
+We were surprised when learning about the history of Neural Networks and one particular research I (Ramkrishna) like most about Neural Network comes from **Hornik, Stinchcombe, White 1989** about Existence Theorem (about Universal Approximation Theorem). It states that 3-layer neural nets can approximate any continuous function on a compact domain. Compact domain means input set has a finite diameter and the boundary is part of the input set.
+
+But what about the complex tasks that we try to generalize on real world? And many more...
+
+
 
 ## Installation
 1. `git clone https://github.com/Crazz-Zaac/computer-vision-experiments.git`
@@ -89,13 +96,15 @@ Order by priority!
 <details>
 <summary>Can U-Nets perform Grayscale to RGB?</summary>
 
-- [Experiment Notebook](notebooks/grayscale_to_rgb.ipynb)
+- Plese follow [Experiment Notebook](notebooks/grayscale_to_rgb.ipynb) to reproduce results.
 - **Why is it relevant?**
     - U-Nets are powerful in semantic segmentation and they are a form of Auto-encoders. Auto-encoders are foundational models for VAE and GANs and can still be good start for an experiment. 
 
 - **What our experiment showed?**
-    - ![](assets/gray_to_rgb/metrics_plot.png)
-    - ![](assets/gray_to_rgb/14_0.png)
+    - MSELoss: 
+    ![](assets/gray_to_rgb/metrics_plot.png)
+    - At Last Epoch:
+    ![](assets/gray_to_rgb/14_0.png)
 - **Conclusions**
     - It worked!
 </details>
