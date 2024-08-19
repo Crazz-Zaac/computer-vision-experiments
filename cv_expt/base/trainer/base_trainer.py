@@ -1,95 +1,111 @@
-from pydantic import BaseModel
+from cv_expt.vis.visualization import subplot_images
+from cv_expt.base.configs.configs import TrainerConfig, DataConfig
+from cv_expt.base.logger.base_logger import BaseLogger
+from cv_expt.base.models.base_model import ModelWrapper
+
 from pathlib import Path
-from typing import List, Tuple, Optional
-from enum import Enum
+from typing import Optional
 import torch
 import cv2
-import sys
 import numpy as np
 from tqdm import tqdm  # for progress bar
 from torch import nn
 from torch.optim import Optimizer
-from torch.optim.lr_scheduler import _LRScheduler
 import segmentation_models_pytorch as smp
-from typing import Callable
-# Add the project root directory to the Python path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.append(str(project_root))
-
-from settings import BASE_DIR, UTILS_DIR, DATASET_DIR, RESULT_DIR
-from display.display import subplot_images
-
-
-class TrainerConfig(BaseModel):
-    result_dir: Path
-    expt_name: str
-    run_name: str
-    log_every: int = 1
-    chkpt_every: int = 0
-    best_model_name: str = "best_model.pth"
-    device: str = "cuda"
-    epochs: int = 100
-    log_display_every: int = 10
-    samples_per_batch: int = 2
-
-    class Config:
-        arbitrary_types_allowed = True
-
 
 
 class Trainer:
     def __init__(
         self,
-        model: nn.Module,
+        model: ModelWrapper,
         config: TrainerConfig,
         optimizer: Optimizer,
         criterion: nn.Module,
-        denormalization: Optional[Callable] = None,
-        scheduler: Optional[_LRScheduler] = None,
+        logger: Optional[BaseLogger] = None,
+        train_dataset: Optional[torch.utils.data.Dataset] = None,
+        val_dataset: Optional[torch.utils.data.Dataset] = None,
     ):
         self.model = model
-        self.denormalization = denormalization
         self.optimizer = optimizer
         self.criterion = criterion
-        self.scheduler = scheduler
         self.config = config
+        self.logger = logger
+        self.train_dataset = train_dataset
+        self.val_dataset = val_dataset
 
+        if self.train_dataset is None:
+            raise ValueError("Train dataset is required for training")
+
+        self.train_loader = torch.utils.data.DataLoader(
+            self.train_dataset,
+            batch_size=self.config.batch_size,
+            shuffle=config.shuffle,
+        )
+
+        if self.val_dataset is not None:
+            self.val_loader = torch.utils.data.DataLoader(
+                self.val_dataset,
+                batch_size=self.config.batch_size,
+                shuffle=config.shuffle,
+            )
+        else:
+            logger.log("Validation dataset is not provided")
+
+        self.setup_dirs()
+        self.metrics = {}
+
+    def setup_dirs(self):
         # if res_dir does not exist, create it inside res_dir/expt_name
-        if not config.result_dir.exists():
-            config.result_dir.mkdir(parents=True, exist_ok=True)
+        if not self.config.result_dir.exists():
+            self.config.result_dir.mkdir(parents=True, exist_ok=True)
 
-        self.expt_dir = config.result_dir / config.expt_name
+        self.expt_dir = self.config.result_dir / self.config.expt_name
         if not self.expt_dir.exists():
             self.expt_dir.mkdir(parents=True, exist_ok=True)
 
-        self.run_dir = self.expt_dir / config.run_name
+        self.run_dir = self.expt_dir / self.config.run_name
         if not self.run_dir.exists():
             self.run_dir.mkdir(parents=True, exist_ok=True)
+        self.model_dir = self.run_dir / "models"
+        if not (self.model_dir).exists():
+            self.model_dir.mkdir(parents=True, exist_ok=True)
+        self.images_dir = self.run_dir / "images"
+        if not (self.images_dir).exists():
+            self.images_dir.mkdir(parents=True, exist_ok=True)
+        self.best_model_path = self.run_dir / self.config.best_model_name
 
-        self.log_dir = self.expt_dir / "logs"
-        if not self.log_dir.exists():
-            self.log_dir.mkdir(parents=True, exist_ok=True)
-        self.best_model_path = self.run_dir / config.best_model_name
+    def train(self):
+        train_loader = self.train_loader
+        val_loader = self.val_loader
 
-        self.log_file = self.log_dir / f"{config.run_name}.log"
-        self.log_file.touch()
-
-    def train(self, train_loader, val_loader):
         self.logs = {}
         self.model = self.model.to(self.config.device)
+        best_score = np.inf
         for epoch in range(self.config.epochs):
             self.model.train()
             logs = []
             train_logs = self.train_step(epoch, train_loader)
             logs.append(train_logs)
 
-            self.model.eval()
-            with torch.no_grad():
-                val_logs = self.val_step(epoch, val_loader)
-                # self.logs.update(val_logs)
-                logs.append(val_logs)
-            self.log(f"Epoch {epoch}: {logs}")
+            if self.val_dataset is not None:
+                self.model.eval()
+                with torch.no_grad():
+                    val_logs = self.val_step(epoch, val_loader)
+                    logs.append(val_logs)
+
+            for log in logs:
+                for k, v in log.items():
+                    self.logger.log_metric(k, v, epoch)
+
             self.logs[epoch] = logs
+
+            if self.config.chkpt_every > 0 and epoch % self.config.chkpt_every == 0:
+                self.save_model(epoch)
+            if val_logs["val_loss"] < best_score:
+                best_score = val_logs["val_loss"]
+                self.save_model(epoch, is_best=True)
+
+            self.logger.info(f"Epoch {epoch} completed")
 
     def train_step(self, epoch, train_loader):
         total_loss = 0
@@ -122,6 +138,7 @@ class Trainer:
             total_loss += loss.item()
             p_bar.update(1)
             p_bar.set_postfix({"val_loss": total_loss / (i + 1)})
+
             if i % self.config.log_display_every == 0:
                 images = []
                 titles = []
@@ -130,24 +147,10 @@ class Trainer:
                 ):
                     if sample == self.config.samples_per_batch:
                         break
-                    inp = inp.cpu().permute(1, 2, 0).numpy()
-                    output = output.cpu().permute(1, 2, 0).numpy()
-                    target = target.cpu().permute(1, 2, 0).numpy()
-                    inp = self.denormalization(inp).astype(np.uint8)
-                    output = self.denormalization(output).astype(np.uint8)
-                    target = self.denormalization(target).astype(np.uint8)
-                    # print(inp.shape, output.shape, target.shape)
-                    # stacked = np.hstack(
-                    #     [
-                    #         cv2.cvtColor(inp.reshape(inp.shape[:2]), cv2.COLOR_GRAY2RGB),
-                    #         target,
-                    #         output,
-                    #     ]
-                    # )
-                    # cv2.imwrite(
-                    #     str(self.run_dir / f"{epoch}_{i}.jpg"),
-                    #     cv2.cvtColor(stacked, cv2.COLOR_RGB2BGR),
-                    # )
+
+                    inp = self.model.postprocess_output(inp).astype(np.uint8)
+                    output = self.model.postprocess_output(output).astype(np.uint8)
+                    target = self.model.postprocess_output(target).astype(np.uint8)
                     images.extend(
                         [
                             cv2.cvtColor(
@@ -158,12 +161,16 @@ class Trainer:
                         ]
                     )
                     titles.extend(["Input", "Target", "Output"])
-
                     sample += 1
                 # save the images
                 subplot_images(
-                    images, titles, fig_size=(10, 10), order=(-1, 3), axis=False
-                ).savefig(str(self.run_dir / f"{epoch}_{i}.jpg"))
+                    images,
+                    titles,
+                    fig_size=(10, 10),
+                    order=(-1, 3),
+                    axis=False,
+                    show=self.config.show_images,
+                ).savefig(str(self.images_dir / f"{epoch}_{i}.png"))
         p_bar.close()
         return {"val_loss": total_loss / len(val_loader)}
 
@@ -174,38 +181,26 @@ class Trainer:
             else self.best_model_path
         )
         torch.save(self.model.state_dict(), str(self.model_path))
+        model = "Best model" if is_best else "Model"
+        self.logger.info(f"{model} saved at {self.model_path}")
 
     def load_model(self, model_path):
         self.model.load_state_dict(torch.load(model_path))
-
-    def log(self, message):
-        with open(self.log_file, "a") as f:
-            f.write(f"{message}\n")
-            print(message)
+        self.logger.info(f"Model loaded from {model_path}")
 
 
 if __name__ == "__main__":
-    import sys
+    from cv_expt.base.data.base_dataset import ImageDataset, ImageDataType
+    from cv_expt.base.defs.defs import ImageChannel, DataType
+    from cv_expt.base.logger.base_logger import BaseLogger, BaseLoggerConfig
+
     import datetime
 
-    sys.path.append(str(UTILS_DIR))
-    from data_loader import (
-        DataConfig,
-        ImageChannel,
-        ImageDataType,
-        DataType,
-        ImageDataset,
-    )
-
     data_config = DataConfig(
-        data_path=Path(DATASET_DIR / "train2017"),
+        data_path=Path("assets/training_data/val2017"),
         image_channels=ImageChannel.RGB,
         image_extensions=["jpg", "png"],
-        input_size=(256, 256),
-        train_size=0.8,
-        shuffle=True,
-        seed=42,
-        max_data=50,
+        max_data=10,
     )
     train_dataset = ImageDataset(
         data_config,
@@ -221,20 +216,27 @@ if __name__ == "__main__":
         denormalization=lambda x: (x * 255.0),
     )
 
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=32, shuffle=True, num_workers=4
-    )
-    val_loader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=32, shuffle=True, num_workers=4
-    )
-
     config = TrainerConfig(
         result_dir=Path("results"),
         expt_name="expt1",
         run_name=f"run_{datetime.datetime.now().date()}",
     )
     model = smp.Unet("resnet18", classes=3, in_channels=1, activation="sigmoid")
+    model = ModelWrapper(
+        model,
+        postprocess=val_dataset.denormalization,
+        preprocess=val_dataset.normalization,
+    )
+
     optimizer = torch.optim.Adam(model.parameters())
     criterion = nn.MSELoss()
-    trainer = Trainer(model, config, optimizer, criterion, val_dataset.denormalization)
-    trainer.train(train_loader, val_loader)
+    trainer = Trainer(
+        model,
+        config,
+        optimizer,
+        criterion,
+        BaseLogger(BaseLoggerConfig(log_path=config.result_dir)),
+        train_dataset,
+        val_dataset,
+    )
+    trainer.train()

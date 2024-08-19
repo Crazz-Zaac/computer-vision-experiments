@@ -1,20 +1,70 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import cv2
-from PIL import Image
 from typing import Tuple, List, Optional
-from pathlib import Path
-from enum import Enum
-from pydantic import BaseModel
+
+
+def show_image(
+    image: np.ndarray,
+    title: Optional[str] = None,
+    fig_size: Tuple[int, int] = (10, 10),
+    axis: bool = False,
+):
+    """
+    A function to plot an image.
+
+    Args:
+    image: Image to plot.
+    title: Title of the image.
+    fig_size: Size of the figure.
+    cmap: Colormap for the image.
+    axis: Whether to show axis or not.
+
+    Returns:
+    fig: Figure object.
+
+    """
+    fig, ax = plt.subplots(figsize=fig_size)
+    ax.imshow(image, vmax=255, vmin=0)
+    if title:
+        ax.set_title(title)
+    if not axis:
+        ax.axis("off")
+    plt.show()
+    return fig
+
 
 def subplot_images(
     image: List[np.ndarray],
     titles: Optional[List[str]] = None,
     fig_size: Tuple[int, int] = (10, 10),
-    cmap: str = "RGB",
     order: Tuple[int, int] = (1, 1),
-    axis:bool=False,
+    axis: bool = False,
+    show: bool = False,
 ):
+    """
+    A function to plot multiple images in a subplot.
+
+    Args:
+    image: List of images to plot.
+    titles: List of titles for each image.
+    fig_size: Size of the figure.
+    cmap: Colormap for the images.
+    order: Tuple of number of rows and columns for the subplot.
+    axis: Whether to show axis or not.
+
+    Returns:
+    fig: Figure object.
+
+    """
+
+    if len(image) == 1:
+        return show_image(
+            image[0],
+            titles[0] if titles else None,
+            fig_size if fig_size else (5, 5),
+            axis,
+        )
+
     order = (
         (order[0], len(image) // order[0])
         if order[1] == -1
@@ -24,60 +74,12 @@ def subplot_images(
     fig, axs = plt.subplots(order[0], order[1], figsize=fig_size)
     if order[0] == 1 and order[1] == 1:
         axs = [axs]
-    for i, ax in enumerate(axs):
-        ax.imshow(image[i], cmap=cmap)
+    for i, ax in enumerate(axs.flatten()):
+        ax.imshow(image[i], vmax=255, vmin=0)
         if titles:
             ax.set_title(titles[i])
         if not axis:
             ax.axis("off")
-    plt.show()
+    if show:
+        plt.show()
     return fig
-
-# class DisplayConfig(BaseModel):
-#     pass
-#     class Config:
-#         arbitrary_types_allowed = True
-
-
-# class Display:
-#     def __init__(self, config:DisplayConfig):
-#         self.config = config
-
-#     def read(self, path: Path, cmap: str) -> np.ndarray:
-#         if cmap == "GRAY":
-#             self.image = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
-#         elif cmap == "RGB":
-#             self.image = cv2.imread(str(path), cv2.IMREAD_COLOR)
-#         elif cmap == "HSV":
-#             self.image = cv2.imread(str(path), cv2.IMREAD_COLOR)
-#             self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
-#         else:
-#             raise ValueError(f"Invalid cmap: {cmap}")
-#         return self.image
-
-#     def subplot_images(
-#         self,
-#         image: List[np.ndarray],
-#         titles: Optional[List[str]] = None,
-#         fig_size: Tuple[int, int] = (10, 10),
-#         cmap: str = "RGB",
-#         order: Tuple[int, int] = (1, 1),
-#         axis:bool=False,
-#     ):
-#         self.order = (
-#             (order[0], len(image) // order[0])
-#             if order[1] == -1
-#             else (len(image) // order[1], order[1]) if order[0] == -1 else order
-#         )
-
-#         fig, axs = plt.subplots(self.order[0], self.order[1], figsize=fig_size)
-#         if order[0] == 1 and order[1] == 1:
-#             axs = [axs]
-#         for i, ax in enumerate(axs):
-#             ax.imshow(image[i], cmap=cmap)
-#             if titles:
-#                 ax.set_title(titles[i])
-#             if not axis:
-#                 ax.axis("off")
-#         plt.show()
-#         return fig

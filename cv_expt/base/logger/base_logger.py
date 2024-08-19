@@ -1,136 +1,108 @@
-import os
-import sys
-import cv2
-from rich.console import Console
-from rich.logging import RichHandler
+from cv_expt.base.configs.configs import BaseLoggerConfig
+
 import logging
-from pydantic import BaseModel
-from typing import Optional
-from csv_logger import CsvLogger
-from settings import BASE_DIR, LOGGER_DIR, IMAGE_LOGGER_DIR
-from pathlib import Path
+from rich.logging import RichHandler
+import numpy as np
+from matplotlib import pyplot as plt
+import csv
+from typing import Union, List, Dict, Tuple
 
 
-# use rich library to log messages
-# csv-logger # package hera hai
-# rich console logger le message log garne
-# csv-logger le locally metrics log garne
+class BaseLogger(logging.Logger):
 
-"""
-class LogConfig(BaseModel):
-    wandb: bool = False
-    as_csv: bool = True
-    log_file: Optional[str] = None
-    pass
+    def __init__(self, config: BaseLoggerConfig):
+        """
+        A custom logger class that extends the Python logging.Logger class.
+        This class is used to log messages to the console and a file.
 
+        Args:
+        config: Configuration for the logger.
+        """
+        super().__init__(config.name, level=getattr(logging, config.log_level.upper()))
+        self.config = config
+        self._setup_logger()
+        self.metric_history = {}
 
-class Logger:
-    def __init__(self, log_config: LogConfig):
-        if log_config.wandb:
-            import wandb
-            wandb.init()
-            self.logger = wandb
-        if log_config.as_csv:
-            self.csv_logger = CSVLogger()
-        if log_config.log_file:
-            pass
-            # yeha rich logger ko code aauxa
-        else:
-            pass
-            
-        pass
-    
-    def log_metric(self, metric: str, step:int, value: float):
-        if self.logger:
-            self.logger.log({metric: value}, step=step)
-        if self.csv_logger:
-            self.csv_logger.log_metric(metric, step, value)
-        pass
-    def log_message(self, message: str, step:int=-1):
-        # rich le log garxa
-        pass
-    def log_image(self, image: np.ndarray, img_name: str):
-        simply image write garne
-        pass
+    def _setup_logger(self):
+        # Create log directory if it doesn't exist
+        self.config.log_path.mkdir(parents=True, exist_ok=True)
 
-"""
+        # Create a RichHandler for colorful console output
+        console_handler = RichHandler()
+        console_handler.setLevel(
+            getattr(logging, self.config.log_level.upper(), "DEBUG")
+        )
 
-rich_txt_log = LOGGER_DIR / "rich_logger.log"
+        # Create a FileHandler for logging to a file
+        file_handler = logging.FileHandler(
+            self.config.log_path / self.config.log_file, mode=self.config.log_write_mode
+        )
+        file_handler.setLevel(getattr(logging, self.config.log_level.upper(), "DEBUG"))
 
+        # Create a formatter and set it for both handlers
+        formatter = logging.Formatter(self.config.log_format)
+        console_handler.setFormatter(formatter)
+        file_handler.setFormatter(formatter)
 
-class LogConfig(BaseModel):
-    wandb: bool = False
-    as_csv: bool = True
-    log_file: Optional[str] = None
-    
+        # Add both handlers to the logger
+        self.addHandler(console_handler)
+        self.addHandler(file_handler)
 
-
-class Logger:
-    def __init__(self, log_config: LogConfig):
-        self.console = Console()
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(RichHandler())
-
-        if log_config.wandb:
-            import wandb
-
-            self.wandb = wandb.init()
-
-        if log_config.as_csv:
-            self.csv_logger = CsvLogger()
-        else:
-            self.csv_logger = None
-
-        if log_config.log_file:
-            file_handler = logging.FileHandler(log_config.log_file)  # to log in file
-            file_handler.setLevel(logging.DEBUG)
-            self.logger.addHandler(file_handler)
-        else:
-            self.log_file = None
-
-    def log_metric(self, epoch: int, metric: str, step: int, value: float):
-        """Log the metric value and epoch to the logger and csv file"""
-        log_message = f"Epoch: {epoch}, Step: {step}, {metric}: {value}"
-
-        # Log the message with INFO level
-        if self.logger:
-            self.logger.log(logging.INFO, log_message)
-
-        if self.csv_logger:
-            self.csv_logger.log_metric(metric, step, value)
-
-    # log message using rich logger
-    def log_message(self, message: str, step: int = -1):
-        """Log the message to the logger"""
-        log_message = f"Step: {step if step != -1 else 'N/A'} | {message}"
-        if self.logger:
-            self.logger.log(logging.INFO, message)
-
-        self.console.print(log_message)
-
-    def log_image(
-        self, image: np.ndarray, img_name: str, image_logger_dir: Optional[Path] = None
+    def log_metric(
+        self, metric_name: str, metric_value: Union[int, float], step: int = 1
     ):
-        """Log the image to the logger"""
-        if image_logger_dir is None:
-            image_logger_dir = IMAGE_LOGGER_DIR
-        image_logger_dir.mkdir(parents=True, exist_ok=True)
+        """
+        Logs metric to both the log file and a CSV file.
 
-        image_path = image_logger_dir / img_name
+        Args:
+        metric_name: The name of the metric.
+        metric_value: The value of the metric.
+        step: The step or iteration at which the metric is logged.
+        """
+        # Log to standard logger
+        self.info(f"Step: {step}, {metric_name}: {metric_value}")
 
-        cv2.imwrite(str(image_path), image)
+        # Log to CSV file
+        csv_path = self.config.log_path / self.config.metric_file
 
-        if self.wandb:
-            self.wandb.log({img_name: wandb.Image(str(image_path))})
+        # Write to CSV file
+        file_exists = csv_path.exists()
+        with open(csv_path, mode="a", newline="") as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                # Write header if file is new
+                writer.writerow(["Step", "Metric", "Value"])
+            # Write metric data
+            writer.writerow([step, metric_name, metric_value])
+        self.metric_history[metric_name] = self.metric_history.get(metric_name, [])
+        self.metric_history[metric_name].append((metric_value, step))
+        self.plot_metrics(self.metric_history)
 
-        self.console.print(f"Image logged at: {image_path}")
-        self.logger.log(logging.INFO, f"Image logged at: {image_path}")
+    def log_image(self, image: np.ndarray, img_name: str, step: int = 1):
+        """
+        Logs an image to the file system.
 
+        Args:
+        image: The image data as a numpy array.
+        img_name: The name of the image file.
+        step: The step or iteration at which the image is logged.
+        """
+        image_path = self.config.log_path / f"{img_name}.png"
+        plt.imsave(image_path, image)
+        self.info(f"Step: {step}, Logged {img_name}: at {image_path}")
 
+    def plot_metrics(self, metrics: Dict[str, List[Tuple[Union[int, float]]]]):
+        """
+        Plots the metrics using matplotlib.
 
-
-if __name__ == '__main__':
-    log_config = LogConfig(wandb=False, as_csv=False, log_file=rich_txt_log)
-    logger = Logger(log_config)
-
+        Args:
+        metrics: A dictionary of metrics with their values and steps.
+        """
+        for metric_name, metric_data in metrics.items():
+            values, steps = zip(*metric_data)
+            plt.plot(steps, values, label=metric_name)
+        plt.xlabel("Steps")
+        plt.ylabel("Values")
+        plt.legend()
+        plt.savefig(self.config.log_path / "metrics_plot.png")
+        plt.close()

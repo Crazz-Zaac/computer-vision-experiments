@@ -1,7 +1,30 @@
-# Computer Vision Expirements
-Package name: `cv_expt`.
+# Computer Vision Expirements i.e. `cv_expt`
+This project is being done heavily based on ChatGPT and CoPilot.
+
+## Installation
+1. `git clone https://github.com/Crazz-Zaac/computer-vision-experiments.git`
+2. `pip install -e cv_expt -r requirements.txt`
+3. Tada....
+
+## Running Tests
+1. `pip install pytest`
+2. We recommend to use `VSCode` and select the tests folder.
+
+## Developing
+1. Install `black` for formatting.
+2. Make sure to enable `format on saving` for VSCode.
+
+## To Do
+Order by priority!
+
+* Make trainer as abstract as possible. And inherit it on each notebook.
+* How to handle image/label pair in dataset?
+* Handling model predict and postprocess.
 
 ## Directory Structure
+<details>
+<summary> Directory Structure</summary>
+
 ```
 |── data
 │   └── # Directory for storing raw and processed datasets.
@@ -58,10 +81,46 @@ Package name: `cv_expt`.
 │       │       # The best-performing model checkpoint from Experiment 1.
 
 ```
-
+</details>
 
 
 ## Experiments
-- [x] [Can U-Nets perform Grayscale to RGB?](/notebooks/grayscal_to_rgb.ipynb)
-- [ ] Can U-Nets perform histogram equalization?
-- [ ] Can U-Nets perform image completion?
+
+<details>
+<summary>Can U-Nets perform Grayscale to RGB?</summary>
+
+- [Experiment Notebook](#Linkhere)
+- **Why is it relevant?**
+    - U-Nets are powerful in semantic segmentation and they are a form of Auto-encoders. Auto-encoders are foundational models for VAE and GANs and can still be good start for an experiment. 
+
+- **What our experiment showed?**
+    - ![](image1.png)
+- **Conclusions**
+    - It worked!
+</details>
+
+<details>
+<summary>Can U-Nets perform histogram equalization?</summary>
+
+- **Why is it relevant?**
+    - Histogram equalization can enhance the contrast of images, which might be useful for improving the quality of certain images or features.
+- **What our experiment showed?**
+    - ![](image1.png)
+    
+- **Conclusions**
+    - 
+
+</details>
+
+<details>
+<summary>Can U-Nets perform image completion?</summary>
+
+- **Why is it relevant?**
+    - Image completion, or inpainting, is used to fill in missing parts of images, which can be useful in various applications such as restoration or data augmentation.
+- **What our experiment showed?**
+    - ![](image1.png)
+    
+- **Conclusions**
+    - 
+
+</details>
