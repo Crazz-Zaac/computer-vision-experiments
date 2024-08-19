@@ -72,7 +72,7 @@ class Trainer:
         self.images_dir = self.run_dir / "images"
         if not (self.images_dir).exists():
             self.images_dir.mkdir(parents=True, exist_ok=True)
-        self.best_model_path = self.run_dir / self.config.best_model_name
+        self.best_model_path = self.model_dir / self.config.best_model_name
 
     def train(self):
         train_loader = self.train_loader

@@ -7,7 +7,6 @@ We were surprised when learning about the history of Neural Networks and one par
 But what about the complex tasks that we try to generalize on real world? And many more...
 
 
-
 ## Installation
 1. `git clone https://github.com/Crazz-Zaac/computer-vision-experiments.git`
 2. `pip install -e cv_expt -r requirements.txt`
