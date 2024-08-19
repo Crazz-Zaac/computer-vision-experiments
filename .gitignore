@@ -1,7 +1,7 @@
 # local files and folders
 venv/
 logs/
-*/training_data/*
+assets/training_data/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

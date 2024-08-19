@@ -89,12 +89,13 @@ Order by priority!
 <details>
 <summary>Can U-Nets perform Grayscale to RGB?</summary>
 
-- [Experiment Notebook](#Linkhere)
+- [Experiment Notebook](notebooks/grayscale_to_rgb.ipynb)
 - **Why is it relevant?**
     - U-Nets are powerful in semantic segmentation and they are a form of Auto-encoders. Auto-encoders are foundational models for VAE and GANs and can still be good start for an experiment. 
 
 - **What our experiment showed?**
-    - ![](image1.png)
+    - ![](assets/gray_to_rgb/metrics_plot.png)
+    - ![](assets/gray_to_rgb/14_0.png)
 - **Conclusions**
     - It worked!
 </details>
