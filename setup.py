@@ -35,4 +35,3 @@ setup(
     zip_safe=False,
     python_requires='>=3.7',
 )
-    
