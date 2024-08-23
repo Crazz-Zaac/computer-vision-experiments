@@ -2,10 +2,10 @@ from cv_expt.base.data.base_dataset import ImageDataset
 from cv_expt.base.configs.configs import DataConfig
 
 import numpy as np
-
+from pathlib import Path
 
 def test_imagedataset():
-    config = DataConfig(
+    config = DataConfig( data_path=Path("assets/"),
         input_size=(224, 224),
         image_channels="rgb",
         image_extensions=["jpg", "jpeg", "png"],
@@ -15,7 +15,7 @@ def test_imagedataset():
     assert len(dataset) > 0
     assert dataset[0] is not None
 
-    config = DataConfig(
+    config = DataConfig( data_path=Path("assets/"),
         input_size=(224, 224),
         image_channels="rgb",
         image_extensions=["jpg", "jpeg", "png"],
@@ -26,7 +26,7 @@ def test_imagedataset():
     assert dataset[0][0].all() == dataset2[0][0].all()
 
     # check default normalization and denormalization
-    config = DataConfig(
+    config = DataConfig( data_path=Path("assets/"),
         input_size=(224, 224),
         image_channels="rgb",
         image_extensions=["jpg", "jpeg", "png"],
