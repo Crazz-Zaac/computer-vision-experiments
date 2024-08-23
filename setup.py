@@ -15,7 +15,7 @@ setup(
         "scikit-image",
         "scikit-learn",
         "scipy",
-        "torch==2.1.1",
+        "torch==2.2.0",
         "tqdm",
     ],
     # entry_points={
