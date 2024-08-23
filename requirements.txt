@@ -13,3 +13,4 @@ tornado==6.4.1
 tqdm==4.66.4
 csv-logger==1.3.0
 pytest
+pytest-cov
