@@ -20,7 +20,7 @@ jobs:
                   cache: "pip"
             - name: Install cv_expt
               run: |
-                  pip install -e .  # Install package in editable mode
+                  pip install .  # Install package in editable mode
             - name: Install dependencies
               run: |
                   pip install -r requirements.txt
