@@ -1,29 +1,40 @@
 name: Run Test
+
 on: 
-    push:
-        branches:
-            - master
-            - main
-    pull_request:
-        branches:
-            - master
-            - main
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
 jobs:
-    test:
-        runs-on: ubuntu-20.04
-        steps:
-            - uses: actions/checkout@v3
-            - name: Set up Python 3.9
-              uses: actions/setup-python@v4
-              with:
-                  python-version: 3.9
-                  cache: "pip"
-            - name: Install cv_expt
-              run: |
-                  pip install .  # Install package in editable mode
-            - name: Install dependencies
-              run: |
-                  pip install -r requirements.txt
-            - name: Run tests
-              run: |
-                  pytest .
+  test:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+          cache: "pip"
+
+      - name: Install cv_expt in editable mode
+        run: |
+          pip install -e .
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Set PYTHONPATH
+        run: |
+          echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: |
+          pytest .
