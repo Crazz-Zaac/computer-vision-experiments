@@ -42,7 +42,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          coverage run --source=cv_expt -m pytest tests/
+          coverage run --source=cv_expt -m pytest tests/ 
 
       - name: Upload coverage to Coveralls
         run: |
