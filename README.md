@@ -1,8 +1,9 @@
-# Computer Vision Expirements i.e. `cv_expt`
+# Computer Vision Expirements - `cv_expt`
 This project is being done with the help of ChatGPT and CoPilot.
 
 ![License](https://img.shields.io/github/license/Crazz-Zaac/computer-vision-experiments)
 ![Dependabot Status](https://img.shields.io/badge/dependabot-active-brightgreen)
+![Code Size](https://img.shields.io/github/repo-size/Crazz-Zaac/computer-vision-experiments)
 
 ## Why are we doing it?
 We were surprised when learning about the history of Neural Networks and one particular research I (Ramkrishna) like most about Neural Network comes from **Hornik, Stinchcombe, White 1989** about Existence Theorem (about Universal Approximation Theorem). It states that 3-layer neural nets can approximate any continuous function on a compact domain. Compact domain means input set has a finite diameter and the boundary is part of the input set.
