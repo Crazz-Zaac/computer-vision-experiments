@@ -4,6 +4,8 @@
 ![commit activity](https://img.shields.io/github/commit-activity/w/Crazz-Zaac/computer-vision-experiments)
 ![code size in bytes](https://img.shields.io/github/languages/code-size/Crazz-Zaac/computer-vision-experiments)
 ![Tests](https://github.com/Crazz-Zaac/computer-vision-experiments/actions/workflows/py_test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/Crazz-Zaac/computer-vision-experiments/branch/master/graph/badge.svg?token=TOKEN)](https://codecov.io/gh/Crazz-Zaac/computer-vision-experiments)
+
 
 
 
