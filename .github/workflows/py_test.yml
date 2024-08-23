@@ -39,12 +39,13 @@ jobs:
       - name: Run tests
         run: |
           pytest --cov=cv_expt
+
       - name: Run tests with coverage
         run: |
           coverage run --source=cv_expt -m pytest tests/
 
-      - name: upload coverage to coveralls
+      - name: Upload coverage to Coveralls
         run: |
           coveralls
-          env:
-            GITHUB_TOKEN: ${{ secrets.cv_expt }}
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.CV_EXPT }}
