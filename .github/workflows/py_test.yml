@@ -30,6 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install coveralls coverage
 
       - name: Set PYTHONPATH
         run: |
@@ -38,7 +39,12 @@ jobs:
       - name: Run tests
         run: |
           pytest --cov=cv_expt
-      - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v2.3.0
-        with:
-            github-token: ${{ secrets.cv_expt }}
+      - name: Run tests with coverage
+        run: |
+          coverage run --source=cv_expt -m pytest tests/
+
+      - name: upload coverage to coveralls
+        run: |
+          coveralls
+          env:
+            GITHUB_TOKEN: ${{ secrets.cv_expt }}
