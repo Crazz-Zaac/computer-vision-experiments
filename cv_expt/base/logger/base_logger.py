@@ -21,7 +21,7 @@ class BaseLogger(logging.Logger):
         super().__init__(config.name, level=getattr(logging, config.log_level.upper()))
         self.config = config
         self._setup_logger()
-        self.metric_history = {}
+        self.metric_history:Dict = {}
 
     def _setup_logger(self):
         # Create log directory if it doesn't exist
@@ -30,14 +30,14 @@ class BaseLogger(logging.Logger):
         # Create a RichHandler for colorful console output
         console_handler = RichHandler()
         console_handler.setLevel(
-            getattr(logging, self.config.log_level.upper(), "DEBUG")
+            getattr(logging, self.config.log_level.upper(), self.config.log_level.upper())
         )
 
         # Create a FileHandler for logging to a file
         file_handler = logging.FileHandler(
             self.config.log_path / self.config.log_file, mode=self.config.log_write_mode
         )
-        file_handler.setLevel(getattr(logging, self.config.log_level.upper(), "DEBUG"))
+        file_handler.setLevel(getattr(logging, self.config.log_level.upper(), self.config.log_level.upper()))
 
         # Create a formatter and set it for both handlers
         formatter = logging.Formatter(self.config.log_format)

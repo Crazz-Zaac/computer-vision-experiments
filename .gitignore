@@ -1,6 +1,5 @@
 # local files and folders
 venv/
-logs/
 assets/training_data/*
 
 # Byte-compiled / optimized / DLL files

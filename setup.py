@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name="cv_expt",
@@ -7,7 +7,7 @@ setup(
     long_description=open("README.md").read(),
     author="Ramkrishna Acharya and Rabin BK",
     author_email="",
-    packages=find_packages(),
+    packages=['cv_expt'],
     install_requires=[
         "numpy",
         "matplotlib",

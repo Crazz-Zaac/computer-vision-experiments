@@ -69,7 +69,7 @@ class ImageDataset(Dataset):
         return image_files
 
     def __len__(self):
-        return len(self.data)
+        return len(self.data) if self.config.samples_per_epoch == -1 else min(self.config.samples_per_epoch, len(self.data))
 
     def get_item(self, idx):
         image_path = self.data[idx]
@@ -90,6 +90,10 @@ class ImageDataset(Dataset):
 
     # trying to make following as generic as possible
     def __getitem__(self, idx):
+        
+        if self.config.samples_per_epoch != -1 and idx == len(self)-1:
+            self.random_state.shuffle(self.data)
+        
         inp = self.get_item(idx)
 
         if self.config.label_path:
