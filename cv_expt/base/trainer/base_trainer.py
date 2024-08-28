@@ -139,13 +139,13 @@ class Trainer:
             p_bar.update(1)
             p_bar.set_postfix({"val_loss": total_loss / (i + 1)})
 
-            if i % self.config.log_display_every == 0:
+            if epoch % self.config.log_display_every == 0 and sample < self.config.display_samples_per_epoch:
                 images = []
                 titles = []
                 for _, (inp, output, target) in enumerate(
                     zip(inputs, outputs, targets)
                 ):
-                    if sample == self.config.samples_per_batch:
+                    if sample == self.config.display_samples_per_epoch:
                         break
 
                     inp = self.model.postprocess_output(inp).astype(np.uint8)
@@ -162,15 +162,16 @@ class Trainer:
                     )
                     titles.extend(["Input", "Target", "Output"])
                     sample += 1
+                
                 # save the images
                 subplot_images(
                     images,
                     titles,
-                    fig_size=(10, 10),
+                    fig_size=(15, 8),
                     order=(-1, 3),
                     axis=False,
                     show=self.config.show_images,
-                ).savefig(str(self.images_dir / f"{epoch}_{i}.png"))
+                ).savefig(str(self.images_dir / f"{epoch}_{sample}.png"))
         p_bar.close()
         return {"val_loss": total_loss / len(val_loader)}
 
@@ -180,12 +181,12 @@ class Trainer:
             if not is_best
             else self.best_model_path
         )
-        torch.save(self.model.state_dict(), str(self.model_path))
+        torch.save(self.model, str(self.model_path))
         model = "Best model" if is_best else "Model"
         self.logger.info(f"{model} saved at {self.model_path}")
 
     def load_model(self, model_path):
-        self.model.load_state_dict(torch.load(model_path))
+        self.model.load(torch.load(model_path))
         self.logger.info(f"Model loaded from {model_path}")
 
 

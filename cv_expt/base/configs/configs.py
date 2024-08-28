@@ -30,7 +30,7 @@ class TrainerConfig(BaseModel):
     device: str = "cuda"
     epochs: int = 100
     log_display_every: int = 10
-    samples_per_batch: int = 2
+    display_samples_per_epoch: int = 2
     batch_size: int = 32
     shuffle: bool = True
     show_images: bool = False
@@ -47,3 +47,12 @@ class BaseLoggerConfig(BaseModel):
     name: str = "CVExpt"
     log_write_mode: str = "w"  # 'w' for overwrite, 'a' for append
     metric_file: str = "metrics.csv"
+    log_in_console: bool = True
+
+class LocalLoggerConfig(BaseModel):
+    log_level: str = "DEBUG"
+    log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    log_path: Path = Path("logs")
+    log_file: str = "app.log"
+    name: str = "LocalLogger"
+    log_write_mode: str = 'w'

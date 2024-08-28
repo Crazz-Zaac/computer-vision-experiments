@@ -2,15 +2,9 @@ import logging
 from rich.logging import RichHandler
 from pydantic import BaseModel
 from pathlib import Path
+from cv_expt.base.configs.configs import LocalLoggerConfig
 
 
-class LocalLoggerConfig(BaseModel):
-    log_level: str = "DEBUG"
-    log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    log_path: Path = Path("logs")
-    log_file: str = "app.log"
-    name: str = "LocalLogger"
-    log_write_mode: str = 'w'
 
 
 class LocalLogger(logging.Logger):

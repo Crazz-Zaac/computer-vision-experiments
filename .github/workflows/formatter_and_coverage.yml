@@ -1,13 +1,11 @@
-name: Python Black Formatter
+name: Formatter and Coverage
 
 on:
   push:
     branches:
-      - master
       - main
   pull_request:
     branches:
-      - master
       - main
 
 jobs:

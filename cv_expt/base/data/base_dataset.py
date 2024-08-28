@@ -60,7 +60,7 @@ class ImageDataset(Dataset):
         self.data = (
             self.train_images if data_type == DataType.TRAIN else self.test_images
         )
-        print(f"Data type: {data_type}, Number of images: {len(self.data)}")
+        print(f"Data type: {data_type}, Number of images: {len(self.data)}, Data Length: {len(self)}")
 
     def get_image_files(self):
         image_files = []
