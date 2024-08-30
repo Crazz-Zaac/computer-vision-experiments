@@ -34,6 +34,7 @@ class TrainerConfig(BaseModel):
     batch_size: int = 32
     shuffle: bool = True
     show_images: bool = False
+    plot_order: Tuple[int, int] = (-1, 3)
 
     class Config:
         arbitrary_types_allowed = True

@@ -73,7 +73,7 @@ def subplot_images(
 
     fig, axs = plt.subplots(order[0], order[1], figsize=fig_size)
     if order[0] == 1 and order[1] == 1:
-        axs = [axs]
+        axs = np.array([axs])
     for i, ax in enumerate(axs.flatten()):
         ax.imshow(image[i], vmax=255, vmin=0)
         if titles:

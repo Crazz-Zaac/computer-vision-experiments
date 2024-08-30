@@ -115,11 +115,15 @@ Order by priority!
     ![](assets/gray_to_rgb/metrics_plot.png)
     - Validation result at Last Epoch:
     ![](assets/gray_to_rgb/14_0.png)
+    - Test Result on unseen data.
+    ![](assets/gray_to_rgb/test_images.png)
 - **Conclusions**
-    - It worked!
+    - It showed some fine results but not strong to say it actually worked.
+    - Surprisingly test results were also not bad.
 
 - **Future Works**
-    - 
+    - Train for longer period?
+    - Use LaB colorspace instead of RGB?
 
 </details>
 

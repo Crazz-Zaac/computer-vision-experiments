@@ -124,7 +124,32 @@ class Trainer:
             p_bar.set_postfix({"loss": total_loss / (i + 1)})
         p_bar.close()
         return {"train_loss": total_loss / len(train_loader)}
+    def visualize_output(self, sample, inputs, outputs, targets):
+        images = []
+        titles = []
+                                    
+        for _, (inp, output, target) in enumerate(
+            zip(inputs, outputs, targets)
+        ):
+            if sample == self.config.display_samples_per_epoch:
+                break
 
+            inp = self.model.postprocess_output(inp).astype(np.uint8)
+            output = self.model.postprocess_output(output).astype(np.uint8)
+            target = self.model.postprocess_output(target).astype(np.uint8)
+            images.extend(
+                [
+                    cv2.cvtColor(
+                        inp.reshape(inp.shape[:2]), cv2.COLOR_GRAY2RGB
+                    ),
+                    target,
+                    output,
+                ]
+            )
+            titles.extend(["Input", "Target", "Output"])
+    
+            sample += 1
+        return images, titles, sample
     def val_step(self, epoch, val_loader):
         total_loss = 0
         p_bar = tqdm(val_loader, desc=f"Val Epoch {epoch}")
@@ -140,35 +165,14 @@ class Trainer:
             p_bar.set_postfix({"val_loss": total_loss / (i + 1)})
 
             if epoch % self.config.log_display_every == 0 and sample < self.config.display_samples_per_epoch:
-                images = []
-                titles = []
-                for _, (inp, output, target) in enumerate(
-                    zip(inputs, outputs, targets)
-                ):
-                    if sample == self.config.display_samples_per_epoch:
-                        break
-
-                    inp = self.model.postprocess_output(inp).astype(np.uint8)
-                    output = self.model.postprocess_output(output).astype(np.uint8)
-                    target = self.model.postprocess_output(target).astype(np.uint8)
-                    images.extend(
-                        [
-                            cv2.cvtColor(
-                                inp.reshape(inp.shape[:2]), cv2.COLOR_GRAY2RGB
-                            ),
-                            target,
-                            output,
-                        ]
-                    )
-                    titles.extend(["Input", "Target", "Output"])
-                    sample += 1
                 
+                images, titles, sample = self.visualize_output(sample, inputs, outputs, targets)                
                 # save the images
                 subplot_images(
                     images,
                     titles,
                     fig_size=(15, 8),
-                    order=(-1, 3),
+                    order=self.config.plot_order    ,
                     axis=False,
                     show=self.config.show_images,
                 ).savefig(str(self.images_dir / f"{epoch}_{sample}.png"))
