@@ -21,21 +21,44 @@ class ImageDataset(Dataset):
         normalization: Callable = lambda x: A.Compose([A.Normalize(always_apply=True)])(
             image=x
         )["image"],
-        denormalization: Callable = lambda x: A.Compose(
-            [
-                A.Normalize(
-                    always_apply=True,
-                    mean=[
-                        -m / s
-                        for m, s in zip([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-                    ],
-                    std=[1.0 / s for s in [0.229, 0.224, 0.225]],
-                    max_pixel_value=1,
-                )
-            ]
-        )(image=x)["image"]
-        * 255,
+        denormalization: Callable = lambda x: np.clip(
+            0,
+            255,
+            A.Compose(
+                [
+                    A.Normalize(
+                        always_apply=True,
+                        mean=[
+                            -m / s
+                            for m, s in zip(
+                                [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
+                            )
+                        ],
+                        std=[1.0 / s for s in [0.229, 0.224, 0.225]],
+                        max_pixel_value=1,
+                    )
+                ]
+            )(image=x)["image"]
+            * 255,
+        ),
     ):
+        """
+        A generic dataset class for image data.
+
+        Args:
+        - config: DataConfig object
+        - transforms: Optional, a callable that applies transformations to the image
+        - data_type: DataType, either TRAIN or VALIDATION
+        - return_type: ImageDataType, either ARRAY or TENSOR
+        - normalization: Callable, a function that normalizes the image. Defaults to albumentations Normalize
+        - denormalization: Callable, a function that denormalizes the image. Defaults to opposite of albumentations Normalize
+
+        **Note**: The normalization and denormalization functions are applied to the image before and after the transformations respectively.
+        And the denormlaized will be nearly equal to the original image.
+        Returns:
+        - None
+
+        """
         self.normalization = normalization
         self.denormalization = denormalization
         self.config = config
@@ -60,7 +83,9 @@ class ImageDataset(Dataset):
         self.data = (
             self.train_images if data_type == DataType.TRAIN else self.test_images
         )
-        print(f"Data type: {data_type}, Number of images: {len(self.data)}, Data Length: {len(self)}")
+        print(
+            f"Data type: {data_type}, Number of images: {len(self.data)}, Data Length: {len(self)}"
+        )
 
     def get_image_files(self):
         image_files = []
@@ -69,7 +94,11 @@ class ImageDataset(Dataset):
         return image_files
 
     def __len__(self):
-        return len(self.data) if self.config.samples_per_epoch == -1 else min(self.config.samples_per_epoch, len(self.data))
+        return (
+            len(self.data)
+            if self.config.samples_per_epoch == -1
+            else min(self.config.samples_per_epoch, len(self.data))
+        )
 
     def get_item(self, idx):
         image_path = self.data[idx]
@@ -90,10 +119,10 @@ class ImageDataset(Dataset):
 
     # trying to make following as generic as possible
     def __getitem__(self, idx):
-        
-        if self.config.samples_per_epoch != -1 and idx == len(self)-1:
+
+        if self.config.samples_per_epoch != -1 and idx == len(self) - 1:
             self.random_state.shuffle(self.data)
-        
+
         inp = self.get_item(idx)
 
         if self.config.label_path:

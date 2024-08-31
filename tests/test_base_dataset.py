@@ -12,7 +12,11 @@ def test_imagedataset():
         image_channels="rgb",
         image_extensions=["jpg", "jpeg", "png"],
     )
-    dataset = ImageDataset(config)
+
+    normalize = lambda x: x / 255.0
+    denormalize = lambda x: x * 255.0
+
+    dataset = ImageDataset(config, normalization=normalize, denormalization=denormalize)
 
     assert len(dataset) > 0
     assert dataset[0] is not None
@@ -23,10 +27,12 @@ def test_imagedataset():
         image_channels="rgb",
         image_extensions=["jpg", "jpeg", "png"],
     )
-    dataset2 = ImageDataset(config)
+    dataset2 = ImageDataset(
+        config, normalization=normalize, denormalization=denormalize
+    )
 
     # check if random state is working fine
-    assert dataset[0][0].all() == dataset2[0][0].all()
+    assert np.array_equal(dataset[0][0], dataset2[0][0])
 
     # check default normalization and denormalization
     config = DataConfig(
@@ -38,9 +44,20 @@ def test_imagedataset():
     no_norm_data = ImageDataset(config, normalization=None, denormalization=None)
 
     # test if normalization is working
-    assert no_norm_data[0][0].all() != dataset[0][0].all()
+    assert not np.array_equal(no_norm_data[0][0], dataset[0][0])
+
+    # print(no_norm_data[0][0])
+    # print(dataset2.denormalization(dataset2[0][0]).astype(np.uint8))
+
+    # import cv2
+
+    # print(no_norm_data[0][0].dtype)
+    # cv2.imwrite("no_norm_data.png", no_norm_data[0][0])
+    # cv2.imwrite(
+    #     "dataset2_denorm.png", dataset2.denormalization(dataset2[0][0]).astype(np.uint8)
+    # )
+
     # test if denormalization is working
-    assert (
-        dataset2.denormalization(dataset2[0][0]).astype(np.uint8).all()
-        == no_norm_data[0][0].all()
+    assert np.array_equal(
+        dataset2.denormalization(dataset2[0][0]).astype(np.uint8), no_norm_data[0][0]
     )
