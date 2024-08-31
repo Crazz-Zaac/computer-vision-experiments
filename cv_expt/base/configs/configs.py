@@ -35,6 +35,10 @@ class TrainerConfig(BaseModel):
     shuffle: bool = True
     show_images: bool = False
     plot_order: Tuple[int, int] = (-1, 3)
+    
+    @property
+    def run_dir(self):
+        return self.result_dir / self.expt_name / self.run_name
 
     class Config:
         arbitrary_types_allowed = True
@@ -54,6 +58,6 @@ class LocalLoggerConfig(BaseModel):
     log_level: str = "DEBUG"
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     log_path: Path = Path("logs")
-    log_file: str = "app.log"
+    log_file: str = "logs.log"
     name: str = "LocalLogger"
     log_write_mode: str = 'w'
