@@ -136,7 +136,7 @@ Order by priority!
     - MSE Loss: 
     ![](assets/hist_eq/metrics_plot.png)
     - Validation result at Last Epoch:
-    ![](assets/hist_eq/14_0.png)
+    ![](assets/hist_eq/90_2.png)
     - Test Result on unseen data.
     ![](assets/hist_eq/test_images.png)
     
