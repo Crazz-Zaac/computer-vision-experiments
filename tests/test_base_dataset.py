@@ -46,17 +46,6 @@ def test_imagedataset():
     # test if normalization is working
     assert not np.array_equal(no_norm_data[0][0], dataset[0][0])
 
-    # print(no_norm_data[0][0])
-    # print(dataset2.denormalization(dataset2[0][0]).astype(np.uint8))
-
-    # import cv2
-
-    # print(no_norm_data[0][0].dtype)
-    # cv2.imwrite("no_norm_data.png", no_norm_data[0][0])
-    # cv2.imwrite(
-    #     "dataset2_denorm.png", dataset2.denormalization(dataset2[0][0]).astype(np.uint8)
-    # )
-
     # test if denormalization is working
     assert np.array_equal(
         dataset2.denormalization(dataset2[0][0]).astype(np.uint8), no_norm_data[0][0]

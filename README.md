@@ -23,6 +23,10 @@ But what about the complex tasks that we try to generalize on real world? And ma
 2. `pip install -e cv_expt -r requirements.txt`
 3. Tada....
 
+## Collaboration
+1. Make an issue and suggest your changes.
+2. We welcome your work. :)
+
 ## Running Tests
 1. `pip install pytest`
 2. We recommend to use `VSCode` and select the tests folder.
@@ -141,7 +145,9 @@ Order by priority!
     ![](assets/hist_eq/test_images.png)
     
 - **Conclusions**
-    - 
+    - Looks like network's prediction is not impressive on test images because it kind of added artifacts. 
+- **Future Works**
+    - Compare results with CLAHE.
 
 </details>
 
@@ -157,3 +163,6 @@ Order by priority!
     - 
 
 </details>
+
+## Collaborators
+--
