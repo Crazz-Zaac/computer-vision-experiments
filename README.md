@@ -133,7 +133,12 @@ Order by priority!
 - **Why is it relevant?**
     - Histogram equalization can enhance the contrast of images, which might be useful for improving the quality of certain images or features.
 - **What our experiment showed?**
-    - ![](image1.png)
+    - MSE Loss: 
+    ![](assets/hist_eq/metrics_plot.png)
+    - Validation result at Last Epoch:
+    ![](assets/hist_eq/14_0.png)
+    - Test Result on unseen data.
+    ![](assets/hist_eq/test_images.png)
     
 - **Conclusions**
     - 
