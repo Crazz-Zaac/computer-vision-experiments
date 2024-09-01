@@ -1,4 +1,4 @@
-# `cv_expt` - Computer Vision Expirements
+# `cv_expt` - Computer Vision Experiments
 ![Dependabot Status](https://img.shields.io/badge/dependabot-active-brightgreen)
 ![GitHub License](https://img.shields.io/github/license/Crazz-Zaac/computer-vision-experiments)
 ![commit activity](https://img.shields.io/github/commit-activity/w/Crazz-Zaac/computer-vision-experiments)
