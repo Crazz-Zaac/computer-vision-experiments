@@ -38,6 +38,7 @@ But what about the complex tasks that we try to generalize on real world? And ma
 ## To Do
 Order by priority!
 * Log Config in log file as well.
+* Load Config from log file.
 * Make trainer as abstract as possible. And inherit it on each notebook.
 * How to handle image/label pair in dataset?
 * Handling model predict and postprocess.
@@ -162,6 +163,18 @@ Order by priority!
 - **Conclusions**
     - 
 
+</details>
+
+<details>
+<summary>Can U-Nets perform image super resolution?</summary>
+
+- **Why is it relevant?**
+    - Image super resolution, simply refers to the method of enlarging image from the smaller size. We can train it on the semi-supervised manner by selcting an original image. Resize to smaller size and pass as an input then compare output with original image.
+- **What our experiment showed?**
+    - ![]()
+    
+- **Conclusions**
+    - 
 </details>
 
 ## Collaborators
