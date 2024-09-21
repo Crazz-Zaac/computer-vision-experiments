@@ -75,6 +75,9 @@ class Trainer:
         self.best_model_path = self.model_dir / self.config.best_model_name
 
     def train(self):
+        """
+        A core training loop that trains the model for the specified number of epochs.
+        """
         train_loader = self.train_loader
         val_loader = self.val_loader
 
@@ -107,7 +110,17 @@ class Trainer:
 
             self.logger.info(f"Epoch {epoch} completed")
 
-    def train_step(self, epoch, train_loader):
+    def train_step(self, epoch: int, train_loader: torch.utils.data.DataLoader) -> dict:
+        """
+        A single training step for the model.
+
+        Args:
+            epoch: The current epoch number.
+            train_loader: The training data loader.
+
+        Returns:
+            A dictionary containing the training metrics.
+        """
         total_loss = 0
         p_bar = tqdm(train_loader, desc=f"Epoch {epoch}")
         for i, (inputs, targets) in enumerate(train_loader):

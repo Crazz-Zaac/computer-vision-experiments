@@ -7,11 +7,10 @@ setup(
     long_description=open("README.md").read(),
     author="Ramkrishna Acharya and Rabin BK",
     author_email="",
-    packages=['cv_expt'],
+    packages=["cv_expt"],
     install_requires=[
         "numpy",
         "matplotlib",
-        "opencv-python",
         "scikit-image",
         "scikit-learn",
         "scipy",
