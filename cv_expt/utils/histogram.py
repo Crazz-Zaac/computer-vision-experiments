@@ -8,7 +8,7 @@ def my_hist(I: np.ndarray, nbins: int) -> np.ndarray:
     Computes histogram of and Image I with number of nbins.
     """
     output_hist, bins = np.histogram(I.flatten(), bins=nbins, range=(0, 255))
-    return output_hist
+    return output_histl
 
 
 def plot_hist(I: np.ndarray, nbins: int) -> None:

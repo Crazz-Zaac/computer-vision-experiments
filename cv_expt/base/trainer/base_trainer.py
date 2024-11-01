@@ -138,6 +138,7 @@ class Trainer:
         p_bar.close()
         return {"train_loss": total_loss / len(train_loader)}
 
+    
     def visualize_output(self, sample, inputs, outputs, targets):
         images = []
         titles = []
@@ -160,7 +161,6 @@ class Trainer:
 
             sample += 1
         return images, titles, sample
-
     def val_step(self, epoch, val_loader):
         total_loss = 0
         p_bar = tqdm(val_loader, desc=f"Val Epoch {epoch}")
