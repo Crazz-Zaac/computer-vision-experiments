@@ -64,12 +64,17 @@ def subplot_images(
             fig_size if fig_size else (5, 5),
             axis,
         )
+    elif len(image) == 0:
+        Warning("No images to plot.")
+        return None
+        
 
     order = (
         (order[0], len(image) // order[0])
         if order[1] == -1
         else (len(image) // order[1], order[1]) if order[0] == -1 else order
     )
+    
 
     fig, axs = plt.subplots(order[0], order[1], figsize=fig_size)
     if order[0] == 1 and order[1] == 1:

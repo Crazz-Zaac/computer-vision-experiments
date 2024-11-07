@@ -73,6 +73,8 @@ class ImageDataset(Dataset):
         if config.max_data > 0:
             print(f"Using only {config.max_data} images out of {len(self.image_files)}")
             self.image_files = self.image_files[: config.max_data]
+        else:
+            print(f"Using all {len(self.image_files)} images")
 
         self.transforms = transforms
         self.train_images, self.test_images = train_test_split(

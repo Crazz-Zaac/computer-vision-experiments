@@ -40,6 +40,7 @@ class Trainer:
             self.train_dataset,
             batch_size=self.config.batch_size,
             shuffle=config.shuffle,
+            num_workers=self.config.number_of_workers,
         )
 
         if self.val_dataset is not None:
@@ -47,6 +48,8 @@ class Trainer:
                 self.val_dataset,
                 batch_size=self.config.batch_size,
                 shuffle=config.shuffle,
+                num_workers=self.config.number_of_workers,
+                
             )
         else:
             logger.log("Validation dataset is not provided")
@@ -184,14 +187,19 @@ class Trainer:
                     sample, inputs, outputs, targets
                 )
                 # save the images
-                subplot_images(
+                fig = subplot_images(
                     images,
                     titles,
                     fig_size=(15, 8),
                     order=self.config.plot_order,
                     axis=False,
                     show=self.config.show_images,
-                ).savefig(str(self.images_dir / f"{epoch}_{sample}.png"))
+                )
+                if fig is not None:
+                    self.logger.info(f"Saving images for epoch {epoch}.")
+                    fig.savefig(str(self.images_dir / f"{epoch}_{sample}.png"))
+                else:
+                    self.logger.info(f"No images to save for epoch {epoch}.")
         p_bar.close()
         return {"val_loss": total_loss / len(val_loader)}
 

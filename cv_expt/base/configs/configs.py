@@ -35,6 +35,7 @@ class TrainerConfig(BaseModel):
     shuffle: bool = True
     show_images: bool = False
     plot_order: Tuple[int, int] = (-1, 3)
+    number_of_workers: int = 0
     
     @property
     def run_dir(self):

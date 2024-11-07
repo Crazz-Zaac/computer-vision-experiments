@@ -146,7 +146,7 @@ Order by priority!
     ![](assets/hist_eq/test_images.png)
     
 - **Conclusions**
-    - Looks like network's prediction is not impressive on test images because it kind of added artifacts. 
+    - Looks like network's prediction is not impressive on test images because it's kind of added artifacts. 
 - **Future Works**
     - Compare results with CLAHE.
 
@@ -158,10 +158,15 @@ Order by priority!
 - **Why is it relevant?**
     - Image completion, or inpainting, is used to fill in missing parts of images, which can be useful in various applications such as restoration or data augmentation.
 - **What our experiment showed?**
-    - ![](image1.png)
+    - MSE Loss: 
+    ![](assets/img_comp/metrics_plot.png)
+    - Validation result at Last Epoch:
+    ![](assets/img_comp/999_2.png)
+    - Test Result on unseen data.
+    ![](assets/img_comp/test_images.png)
     
 - **Conclusions**
-    - 
+    - This showed that it couldn't generate the missing part of the image, which is quite obvious. U-Net's architecture isn't designed to predict the missing pixels but only for classifying the existing ones. That is, it is best suited for any segementation task.
 
 </details>
 
